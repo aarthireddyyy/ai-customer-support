@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { serve } from "@hono/node-server";
 import { errorHandler } from "./middleware/error";
 import { api } from "./routes/api";
+import { debugController } from "./controllers/debugController"
 import "dotenv/config";
 
 const app = new Hono();
@@ -14,7 +15,7 @@ app.get("/health", (c) => c.json({ status: "ok" }));
 
 // mount API
 app.route("/api", api);
-
+app.route("/api/debug", debugController);
 const port = Number(process.env.PORT) || 8787;
 
 console.log(`🚀 Backend running at http://localhost:${port}`);

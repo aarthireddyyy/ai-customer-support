@@ -11,32 +11,35 @@ chatController.post("/messages", async (c) => {
   const message: string = body.message;
 
   if (!conversationId || !message) {
-    return c.json({ error: "conversationId and message required" }, 400);
+    return c.json(
+      { error: "conversationId and message are required" },
+      400
+    );
   }
 
   // 1. Save user message
   await MessagesService.addMessage(conversationId, "user", message);
 
-  // 2. Fetch full conversation history (context for agents)
+  // 2. Load conversation history (context)
   const history = await MessagesService.getConversationMessages(conversationId);
 
-  // 3. Classify intent using Router Agent (LLM)
+  // 3. Classify intent using Router Agent
   const intent = await RouterAgentService.classifyIntent(message);
 
-  // 4. Pick the appropriate sub-agent
-  const agent = AgentsMap[intent];
+  // 4. Select the correct sub-agent
+  const agent = AgentsMap[intent] ?? AgentsMap.fallback;
 
-  // 5. For now: placeholder agent response (real agents in Step 8)
-  const aiReply = `[${agent.name}] received: ${message}`;
+  // 5. Call the agent (real DB-powered logic)
+  const reply = await agent.respond(message, conversationId);
 
-  // 6. Save assistant response
-  await MessagesService.addMessage(conversationId, "assistant", aiReply);
+  // 6. Save assistant reply
+  await MessagesService.addMessage(conversationId, "assistant", reply);
 
-  // 7. Return structured response
+  // 7. Return response
   return c.json({
     intent,
-    agent: agent.name,
-    reply: aiReply,
+    agent: agent.constructor?.name ?? intent,
+    reply,
     history,
   });
 });

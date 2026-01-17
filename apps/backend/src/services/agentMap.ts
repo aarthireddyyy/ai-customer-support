@@ -1,14 +1,10 @@
+import { SupportAgent } from "./supportAgent";
+import { OrderAgent } from "./orderAgent";
+import { BillingAgent } from "./billingAgent";
+
 export const AgentsMap = {
-  support: {
-    name: "SupportAgent",
-  },
-  order: {
-    name: "OrderAgent",
-  },
-  billing: {
-    name: "BillingAgent",
-  },
-  fallback: {
-    name: "SupportAgent", // default fallback
-  },
+  support: SupportAgent,
+  order: OrderAgent,
+  billing: BillingAgent,
+  fallback: SupportAgent,
 };
