@@ -1,13 +1,14 @@
 import { Hono } from "hono";
 import { MessagesService } from "../services/messagesService";
-import { ConversationsService } from "../services/conversationsService";
+import { RouterAgentService } from "../services/routerAgentService";
+import { AgentsMap } from "../services/agentMap";
 
 export const chatController = new Hono();
 
 chatController.post("/messages", async (c) => {
   const body = await c.req.json();
   const conversationId = Number(body.conversationId);
-  const message = body.message;
+  const message: string = body.message;
 
   if (!conversationId || !message) {
     return c.json({ error: "conversationId and message required" }, 400);
@@ -16,17 +17,25 @@ chatController.post("/messages", async (c) => {
   // 1. Save user message
   await MessagesService.addMessage(conversationId, "user", message);
 
-  // 2. Load context (all messages so far)
+  // 2. Fetch full conversation history (context for agents)
   const history = await MessagesService.getConversationMessages(conversationId);
 
-  // 3. Dummy AI response for now (LLM placeholder)
-  const aiReply = `Echo: ${message}`;
+  // 3. Classify intent using Router Agent (LLM)
+  const intent = await RouterAgentService.classifyIntent(message);
 
-  // 4. Save assistant message
+  // 4. Pick the appropriate sub-agent
+  const agent = AgentsMap[intent];
+
+  // 5. For now: placeholder agent response (real agents in Step 8)
+  const aiReply = `[${agent.name}] received: ${message}`;
+
+  // 6. Save assistant response
   await MessagesService.addMessage(conversationId, "assistant", aiReply);
 
-  // 5. Return response
+  // 7. Return structured response
   return c.json({
+    intent,
+    agent: agent.name,
     reply: aiReply,
     history,
   });
