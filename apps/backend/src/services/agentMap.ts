@@ -3,8 +3,10 @@ import { OrderAgent } from "./orderAgent";
 import { BillingAgent } from "./billingAgent";
 
 export const AgentsMap = {
-  support: SupportAgent,
-  order: OrderAgent,
-  billing: BillingAgent,
-  fallback: SupportAgent,
+  support: new SupportAgent(),
+  order: new OrderAgent(),
+  billing: new BillingAgent(),
+  fallback: new SupportAgent(),
 };
+
+export type AgentIntent = keyof typeof AgentsMap;  // "support" | "order" | "billing" | "fallback"

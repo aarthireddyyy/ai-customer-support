@@ -1,15 +1,17 @@
-import { ConversationTool } from "./tools/conversationTool";
+import { MessagesService } from "./messagesService";
 
-export const SupportAgent = {
-  async respond(message: string, conversationId: number) {
-    const history = await ConversationTool.getHistory(conversationId);
+export class SupportAgent {
+  async respond(message: string, conversationId: number): Promise<string> {
+    const history = await MessagesService.getConversationMessages(conversationId);
 
     return `
-I’m your support assistant.
-You asked: "${message}"
+I'm your Support Agent.
 
-Here is what I know from your conversation history:
-${history.map(h => `- ${h.role}: ${h.content}`).join("\n")}
-`;
-  },
-};
+You said: "${message}"
+
+Conversation so far has ${history.length} messages.
+
+How can I assist you further?
+    `.trim();
+  }
+}

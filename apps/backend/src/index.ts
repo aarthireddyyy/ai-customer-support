@@ -1,26 +1,23 @@
 import { Hono } from "hono";
+import { cors } from "hono/cors";
 import { serve } from "@hono/node-server";
-import { errorHandler } from "./middleware/error";
-import { api } from "./routes/api";
-import { debugController } from "./controllers/debugController"
-import "dotenv/config";
+
+import { chatController } from "./controllers/chatController";
+import { conversationsController } from "./controllers/conversationsController";
 
 const app = new Hono();
 
-// global error handler
-app.use("*", errorHandler);
+// CORS FIX
+app.use("*", cors({
+  origin: "http://localhost:5173",
+  allowMethods: ["GET", "POST", "DELETE", "OPTIONS"],
+  allowHeaders: ["Content-Type"],
+}));
 
-// health route
-app.get("/health", (c) => c.json({ status: "ok" }));
-
-// mount API
-app.route("/api", api);
-app.route("/api/debug", debugController);
-const port = Number(process.env.PORT) || 8787;
-
-console.log(`🚀 Backend running at http://localhost:${port}`);
+app.route("/api/chat", chatController);
+app.route("/api/conversations", conversationsController);
 
 serve({
   fetch: app.fetch,
-  port,
+  port: 8787,
 });

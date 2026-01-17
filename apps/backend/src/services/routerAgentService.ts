@@ -1,34 +1,32 @@
 import { generateText } from "ai";
 import { openai } from "@ai-sdk/openai";
-import "dotenv/config";
+import type { AgentIntent } from "./agentMap";
 
 export const RouterAgentService = {
-  async classifyIntent(message: string) {
-    const prompt = `
-You are an intent classifier for a customer support AI system.
+  async classifyIntent(message: string): Promise<AgentIntent> {
+    try {
+      const result = await generateText({
+        model: openai("gpt-4o-mini"),
+        prompt: `
+          Classify the intent of this message:
 
-Classify the user's message into one of these:
-- support
-- order
-- billing
-- fallback
+          "${message}"
 
-User: "${message}"
+          Respond with ONLY ONE WORD:
+          support | order | billing
+        `
+      });
 
-Respond with ONLY the label.
-`;
+      const output = result.text.toLowerCase().trim();
 
-    const response = await generateText({
-      model: openai("gpt-4o-mini"),
-      prompt,
-    });
+      if (["order", "billing", "support"].includes(output)) {
+        return output as AgentIntent;
+      }
 
-    const intent = response.text.trim().toLowerCase();
-
-    if (!["support", "order", "billing", "fallback"].includes(intent)) {
+      return "fallback"; 
+    } catch (err) {
+      console.error("❌ RouterAgent ERROR:", err);
       return "fallback";
     }
-
-    return intent;
-  },
+  }
 };

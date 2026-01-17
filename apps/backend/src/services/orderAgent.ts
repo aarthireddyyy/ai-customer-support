@@ -1,15 +1,16 @@
 import { OrderTool } from "./tools/orderTool";
 
-export const OrderAgent = {
-  async respond(message: string) {
-    const idMatch = message.match(/\d+/);
-    if (!idMatch) return "I couldn't find an order ID in your message.";
+export class OrderAgent {
+  async respond(message: string, conversationId: number): Promise<string> {
+    // Extract ID
+    const match = message.match(/(\d+)/);
+    if (!match) return "Please specify an order number.";
 
-    const orderId = Number(idMatch[0]);
-    
-    const order = await OrderTool.findOrderById(orderId);
-    if (!order) return `Order #${orderId} not found.`;
+    const id = Number(match[1]);
+    const order = await OrderTool.findOrderById(id);
 
-    return `Order #${orderId} is currently: ${order.status}`;
-  },
-};
+    if (!order) return `Order #${id} not found.`;
+
+    return `Order #${id} is currently ${order.status}.`;
+  }
+}
