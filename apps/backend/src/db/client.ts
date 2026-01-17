@@ -7,10 +7,8 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
     rejectUnauthorized: false, // required for Neon
-  }
+  },
 });
 
-export const db = drizzle({
-  client: pool,
-  schema,
-});
+// ✅ CORRECT for node-postgres
+export const db = drizzle(pool, { schema });
