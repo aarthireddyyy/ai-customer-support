@@ -86,7 +86,7 @@ GET /api/agents/:type/capabilities
 
 🔎 API Demo (Open in Browser)
 
-These links allow quick validation of every endpoint — useful for reviewers:
+These links allow quick validation of every endpoint :
 
 ✔ List conversations
 
@@ -134,7 +134,7 @@ pnpm dev
 Runs at:
 http://localhost:5173
 
-🧹 Worker Task (Bonus)
+🧹 Worker Task 
 
 A scheduled worker runs every hour to clean up stale conversations:
 
