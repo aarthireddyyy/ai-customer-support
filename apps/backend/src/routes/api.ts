@@ -6,5 +6,5 @@ export const api = new Hono();
 api.get("/", (c) => c.json({ message: "API root working" }));
 
 // mount conversations
-api.route("/conversations", conversationsController);
 api.route("/chat", chatController);
+api.route("/chat/conversations", conversationsController);
